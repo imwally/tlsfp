@@ -4,21 +4,25 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/tls"
+	"errors"
 	"fmt"
-	"log"
 	"os"
 )
 
+func errAndExit(err error) {
+	fmt.Fprintf(os.Stderr, "tlsfp: %s\n", err)
+	os.Exit(1)
+}
+
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "expected at lest 1 argument\n")
-		os.Exit(-1)
+		errAndExit(errors.New("expected at least 1 argument"))
 	}
 
 	host := os.Args[1]
 	conn, err := tls.Dial("tcp", host+":443", nil)
 	if err != nil {
-		log.Println(err)
+		errAndExit(err)
 	}
 	defer conn.Close()
 

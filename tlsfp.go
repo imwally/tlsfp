@@ -19,8 +19,8 @@ func main() {
 		errAndExit(errors.New("expected at least 1 argument"))
 	}
 
-	host := os.Args[1]
-	conn, err := tls.Dial("tcp", host+":443", nil)
+	addr := os.Args[1]
+	conn, err := tls.Dial("tcp", addr+":443", nil)
 	if err != nil {
 		errAndExit(err)
 	}

@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"flag"
 	"fmt"
@@ -19,6 +20,18 @@ func errAndExit(err error) {
 	os.Exit(1)
 }
 
+func getCert(addr string) *x509.Certificate {
+	conn, err := tls.Dial("tcp", addr+":443", nil)
+	if err != nil {
+		errAndExit(err)
+	}
+	defer conn.Close()
+
+	state := conn.ConnectionState()
+
+	return state.PeerCertificates[0]
+}
+
 func main() {
 	var algo int
 
@@ -30,20 +43,15 @@ func main() {
 		errAndExit(errors.New("no host specified"))
 	}
 
-	addr := tlsfs.Arg(0)
-	conn, err := tls.Dial("tcp", addr+":443", nil)
-	if err != nil {
-		errAndExit(err)
-	}
-	defer conn.Close()
-
-	state := conn.ConnectionState()
-	cert := state.PeerCertificates[0]
-
 	switch algo {
 	case 1:
+		cert := getCert(tlsfs.Arg(0))
 		fmt.Printf("% X\n", sha1.Sum(cert.Raw))
 	case 256:
+		cert := getCert(tlsfs.Arg(0))
 		fmt.Printf("% X\n", sha256.Sum256(cert.Raw))
+	default:
+		errText := fmt.Sprintf("unrecognized algorithm: %d", algo)
+		errAndExit(errors.New(errText))
 	}
 }

@@ -20,7 +20,7 @@ func errAndExit(err error) {
 	os.Exit(1)
 }
 
-func getCert(addr string) *x509.Certificate {
+func getCert(addr string) (*x509.Certificate, error) {
 	conn, err := tls.Dial("tcp", addr+":443", nil)
 	if err != nil {
 		errAndExit(err)
@@ -29,7 +29,7 @@ func getCert(addr string) *x509.Certificate {
 
 	state := conn.ConnectionState()
 
-	return state.PeerCertificates[0]
+	return state.PeerCertificates[0], nil
 }
 
 func main() {
@@ -45,10 +45,16 @@ func main() {
 
 	switch algo {
 	case 1:
-		cert := getCert(tlsfs.Arg(0))
+		cert, err := getCert(tlsfs.Arg(0))
+		if err != nil {
+			errAndExit(err)
+		}
 		fmt.Printf("% X\n", sha1.Sum(cert.Raw))
 	case 256:
-		cert := getCert(tlsfs.Arg(0))
+		cert, err := getCert(tlsfs.Arg(0))
+		if err != nil {
+			errAndExit(err)
+		}
 		fmt.Printf("% X\n", sha256.Sum256(cert.Raw))
 	default:
 		errText := fmt.Sprintf("unrecognized algorithm: %d", algo)

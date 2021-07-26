@@ -11,12 +11,17 @@ import (
 )
 
 func errAndExit(err error) {
+	if wrappedErr := errors.Unwrap(err); wrappedErr != nil {
+		err = wrappedErr
+	}
+
 	fmt.Fprintf(os.Stderr, "tlsfp: %s\n", err)
 	os.Exit(1)
 }
 
 func main() {
 	var algo int
+
 	tlsfs := flag.NewFlagSet("tlsfp", flag.ExitOnError)
 	tlsfs.IntVar(&algo, "a", 1, "algorithm: 1, 256")
 	tlsfs.Parse(os.Args[1:])

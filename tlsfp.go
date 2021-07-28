@@ -33,10 +33,16 @@ func getCert(addr string) (*x509.Certificate, error) {
 }
 
 func main() {
+
+	var usageText = `usage: tlsfp [-a algorithm] host`
 	var algo int
 
 	tlsfs := flag.NewFlagSet("tlsfp", flag.ExitOnError)
 	tlsfs.IntVar(&algo, "a", 1, "algorithm: 1, 256")
+	tlsfs.Usage = func() {
+		fmt.Fprintf(os.Stderr, "%s\n", usageText)
+		tlsfs.PrintDefaults()
+	}
 	tlsfs.Parse(os.Args[1:])
 
 	if len(tlsfs.Args()) < 1 {

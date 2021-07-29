@@ -33,7 +33,6 @@ func getCert(addr string) (*x509.Certificate, error) {
 }
 
 func main() {
-
 	var usageText = `usage: tlsfp [-a algorithm] host`
 	var algo int
 

@@ -23,7 +23,7 @@ func errAndExit(err error) {
 func getCert(addr string) (*x509.Certificate, error) {
 	conn, err := tls.Dial("tcp", addr+":443", nil)
 	if err != nil {
-		errAndExit(err)
+		return nil, err
 	}
 	defer conn.Close()
 
